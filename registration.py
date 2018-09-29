@@ -1,7 +1,28 @@
 import tkinter as tk
 from tkinter import ttk
-from play_animation import play
+from play_animation import play, file
+import _thread
+import serial
+import time
+
 LARGE_FONT = ("Verdana", 12)
+NORM_FONT = ("Helvetica", 10)
+
+
+# ser = serial.Serial('/dev/ttyACM0', 9600)
+_thread.start_new_thread(play, ())
+
+
+def open_door():
+    # ser.write(1)
+    time.sleep(2)
+    # ser.write(0)
+
+
+def close_door():
+    # ser.write(2)
+    time.sleep(2)
+    # ser.write(0)
 
 
 class ViduruthNinnada(tk.Tk):
@@ -82,24 +103,64 @@ class ViduruthNinnada(tk.Tk):
             frame.pack()
 
         frame = ttk.Frame(main_frame)
-        submit_button = ttk.Button(frame, text="Submit", command=lambda: self.save_data())
-        submit_button.pack(side="right", pady=10, padx=30)
+        self.submit_button = ttk.Button(frame, text="Submit", command=lambda: self.save_data())
+        self.submit_button.pack(side="right", pady=10, padx=30)
+
+        self.open_door_button = ttk.Button(frame, text="Open Door", command=lambda: open_door())
+        self.open_door_button.pack(side="left", pady=10, padx=30)
+        self.open_close_button = ttk.Button(frame, text="Close Door", command=lambda: close_door())
+        self.open_close_button.pack(side="left", pady=10, padx=30)
+
         frame.pack(pady=10, fill=tk.X)
 
         main_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        self.school_id.focus_set()
+        # self.submit_button.config(state="disabled")
 
     def get_school(self, event=None):
-        print('Yes')
-        self.school_name.insert(0, self.schools[self.school_id.get()])
+        # print(self.school_id.get())
+        if self.school_id.get() not in self.schools.keys():
+            popupmsg('School was Not Found on the Database\nPlease Contact a Organizer')
+            # self.school_name.insert(0, 'School was not found')
+            # self.submit_button.config(state="disabled")
+        else:
+            self.school_name.insert(0, self.schools[self.school_id.get()])
+
+            # self.submit_button.config(state="normal")
 
     def save_data(self):
         data = "{},{},{},{},{}".format(self.school_id.get(), self.school_name.get(), self.school_st_count.get(),
                                        self.mic_name_input.get(), self.mic_tp_input.get())
         for student in self.students_widgets:
-            data += ','+student['Name Input'].get()
-            data += ','+student['TP Input'].get()
-        play('videos/{}.mov'.format(self.school_id.get()))
-        print(data)
+            data += ',' + student['Name Input'].get()
+            data += ',' + student['TP Input'].get()
+        # play('videos/{}.mov'.format(self.school_id.get()))
+        # ser.write(1)
+        print(data, file=open('registration.csv', 'a'))
+
+        # open_door()
+
+        file.append('videos/{}.mov'.format(self.school_id.get()))
+
+        self.school_id.delete(0, 'end')
+        self.school_name.delete(0, 'end')
+        self.school_st_count.delete(0, 'end')
+        self.mic_name_input.delete(0, 'end')
+        self.mic_tp_input.delete(0, 'end')
+        for student in self.students_widgets:
+            student['Name Input'].delete(0, 'end')
+            student['TP Input'].delete(0, 'end')
+        self.school_id.focus_set()
+
+
+def popupmsg(msg):
+    popup = tk.Tk()
+    popup.wm_title("Error !")
+    label = ttk.Label(popup, text=msg, font=LARGE_FONT)
+    label.pack(side="top", fill="x", pady=10, padx=20)
+    B1 = ttk.Button(popup, text="Okay", command=popup.destroy)
+    B1.pack()
+    popup.mainloop()
 
 
 app = ViduruthNinnada()
