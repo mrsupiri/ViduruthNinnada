@@ -2,27 +2,13 @@ import tkinter as tk
 from tkinter import ttk
 from play_animation import play, file
 import _thread
-import serial
 import time
 
 LARGE_FONT = ("Verdana", 12)
 NORM_FONT = ("Helvetica", 10)
 
 
-# ser = serial.Serial('/dev/ttyACM0', 9600)
 _thread.start_new_thread(play, ())
-
-
-def open_door():
-    # ser.write(1)
-    time.sleep(2)
-    # ser.write(0)
-
-
-def close_door():
-    # ser.write(2)
-    time.sleep(2)
-    # ser.write(0)
 
 
 class ViduruthNinnada(tk.Tk):
@@ -106,11 +92,6 @@ class ViduruthNinnada(tk.Tk):
         self.submit_button = ttk.Button(frame, text="Submit", command=lambda: self.save_data())
         self.submit_button.pack(side="right", pady=10, padx=30)
 
-        self.open_door_button = ttk.Button(frame, text="Open Door", command=lambda: open_door())
-        self.open_door_button.pack(side="left", pady=10, padx=30)
-        self.open_close_button = ttk.Button(frame, text="Close Door", command=lambda: close_door())
-        self.open_close_button.pack(side="left", pady=10, padx=30)
-
         frame.pack(pady=10, fill=tk.X)
 
         main_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
@@ -134,11 +115,8 @@ class ViduruthNinnada(tk.Tk):
         for student in self.students_widgets:
             data += ',' + student['Name Input'].get()
             data += ',' + student['TP Input'].get()
-        # play('videos/{}.mov'.format(self.school_id.get()))
-        # ser.write(1)
-        print(data, file=open('registration.csv', 'a'))
 
-        # open_door()
+        print(data, file=open('registration.csv', 'a'))
 
         file.append('videos/{}.mov'.format(self.school_id.get()))
 
